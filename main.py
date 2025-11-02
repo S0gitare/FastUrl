@@ -20,7 +20,6 @@ application.add_middleware(
 urls_armazenadas = {}
 
 
-# dados que o usuário irá enviar
 class UrlItem(BaseModel):
     url_original: str
 
