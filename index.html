@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShortUrl - Encurtador de Links</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 600px;
+            width: 100%;
+        }
+
+        h1 {
+            text-align: center;
+            color: #667eea;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: bold;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .result {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            display: none;
+        }
+
+        .result.show {
+            display: block;
+        }
+
+        .result-label {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        .result-url {
+            color: #333;
+            font-size: 16px;
+            word-break: break-all;
+            margin-bottom: 15px;
+        }
+
+        .short-url-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .short-url {
+            color: #667eea;
+            font-size: 20px;
+            font-weight: bold;
+            word-break: break-all;
+            flex: 1;
+        }
+
+        .copy-btn {
+            width: 40px;
+            height: 40px;
+            padding: 0;
+            background: #e8eaf6;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .copy-btn:hover {
+            background: #c5cae9;
+            transform: scale(1.1);
+        }
+
+        .copy-btn.copied {
+            background: #28a745;
+        }
+
+        .copy-btn svg {
+            width: 20px;
+            height: 20px;
+            fill: #667eea;
+        }
+
+        .copy-btn.copied svg {
+            fill: white;
+        }
+
+        .error {
+            margin-top: 20px;
+            padding: 15px;
+            background: #ffebee;
+            color: #c62828;
+            border-radius: 10px;
+            display: none;
+        }
+
+        .error.show {
+            display: block;
+        }
+
+        .loading {
+            display: inline-block;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>ShortUrl</h1>
+        
+        <div class="input-group">
+            <label for="originalUrl">Cole seu link aqui:</label>
+            <input type="text" id="originalUrl" placeholder="https://exemplo.com/seu-link-muito-longo">
+        </div>
+
+        <button id="btnEncurtar" onclick="encurtarLink()">Encurtar Link</button>
+
+        <div class="error" id="error"></div>
+
+        <div class="result" id="result">
+            <div class="result-label">Link original:</div>
+            <div class="result-url" id="displayOriginal"></div>
+            
+            <div class="result-label">Link encurtado:</div>
+            <div class="short-url-container">
+                <div class="short-url" id="shortUrl"></div>
+                <button class="copy-btn" id="copyBtn" onclick="copiarLink()">
+                    <svg id="copyIcon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                        <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:8000';
+
+        async function encurtarLink() {
+            const originalUrl = document.getElementById('originalUrl').value;
+            const btnEncurtar = document.getElementById('btnEncurtar');
+            const errorDiv = document.getElementById('error');
+            const resultDiv = document.getElementById('result');
+            
+            // Esconde mensagens anteriores
+            errorDiv.classList.remove('show');
+            resultDiv.classList.remove('show');
+            
+            if (!originalUrl) {
+                mostrarErro('Por favor, insira um link!');
+                return;
+            }
+
+            // Validação básica de URL
+            try {
+                new URL(originalUrl);
+            } catch (e) {
+                mostrarErro('Por favor, insira uma URL válida (ex: https://exemplo.com)');
+                return;
+            }
+
+            // Desabilita o botão durante a requisição
+            btnEncurtar.disabled = true;
+            btnEncurtar.innerHTML = 'Encurtando... <span class="loading">⏳</span>';
+
+            try {
+                const response = await fetch(`${API_URL}/encurtar`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        url_original: originalUrl
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Erro ao encurtar o link');
+                }
+
+                const data = await response.json();
+                
+                // Exibe os resultados
+                document.getElementById('displayOriginal').textContent = originalUrl;
+                document.getElementById('shortUrl').textContent = data.url_encurtada;
+                resultDiv.classList.add('show');
+                
+                // Reset do botão copiar
+                const copyBtn = document.getElementById('copyBtn');
+                copyBtn.classList.remove('copied');
+                document.getElementById('copyIcon').innerHTML = '<path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>';
+
+            } catch (error) {
+                mostrarErro('Erro ao encurtar o link. Certifique-se de que o servidor está rodando.');
+                console.error('Erro:', error);
+            } finally {
+                // Reabilita o botão
+                btnEncurtar.disabled = false;
+                btnEncurtar.textContent = 'Encurtar Link';
+            }
+        }
+
+        function mostrarErro(mensagem) {
+            const errorDiv = document.getElementById('error');
+            errorDiv.textContent = mensagem;
+            errorDiv.classList.add('show');
+        }
+
+        function copiarLink() {
+            const linkEncurtado = document.getElementById('shortUrl').textContent;
+            const copyBtn = document.getElementById('copyBtn');
+            const copyIcon = document.getElementById('copyIcon');
+            
+            navigator.clipboard.writeText(linkEncurtado).then(() => {
+                copyBtn.classList.add('copied');
+                copyIcon.innerHTML = '<path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>';
+                
+                setTimeout(() => {
+                    copyBtn.classList.remove('copied');
+                    copyIcon.innerHTML = '<path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>';
+                }, 2000);
+            }).catch(err => {
+                mostrarErro('Erro ao copiar o link');
+            });
+        }
+
+        // Permite encurtar pressionando Enter
+        document.getElementById('originalUrl').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                encurtarLink();
+            }
+        });
+    </script>
+</body>
+</html>
