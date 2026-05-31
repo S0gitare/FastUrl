@@ -1,4 +1,4 @@
-from fastapi import HTTPException
+from fastapi import HTTPException, Request
 import secrets
 import time
 from fastapi import FastAPI
@@ -65,7 +65,7 @@ def gerar_codigo_curto(tamanho=6):
 
 
 @application.post("/encurtar")
-def endpoint_encurtar(Requisicao: UrlItem):
+def endpoint_encurtar(Requisicao: UrlItem, request: Request):
     slug = Requisicao.slug or gerar_codigo_curto(tamanho=6)
 
     if slug in urls_armazenadas:
@@ -80,8 +80,9 @@ def endpoint_encurtar(Requisicao: UrlItem):
         "expires_at": expires_at
     }
 
+    base_url = str(request.base_url).rstrip("/")
     return {
-        "url_encurtada": f"http://localhost:8000/{slug}",
+        "url_encurtada": f"{base_url}/{slug}",
         "expires_at": expires_at
     }
 
