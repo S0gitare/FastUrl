@@ -3,309 +3,568 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ShortUrl - Encurtador de Links</title>
+    <title>FastURL — Encurtador de Links</title>
+
+    <!-- SEO -->
+    <meta name="description" content="FastURL — encurtador de links simples e rápido. Cole sua URL longa e obtenha um link curto em segundos.">
+    <meta name="robots" content="index, follow">
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://seusite.com">
+    <meta property="og:title" content="FastURL — Encurtador de Links">
+    <meta property="og:description" content="Cole sua URL longa e obtenha um link curto em segundos.">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="FastURL — Encurtador de Links">
+    <meta name="twitter:description" content="Cole sua URL longa e obtenha um link curto em segundos.">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;700&family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --bg: #070707;
+            --surface: #0e0e0e;
+            --border: #1c1c1c;
+            --border-active: #333333;
+            --text: #f0f0f0;
+            --text-dim: #909090;
+            --text-subtle: #606060;
+            --accent: #a3ff47;
+            --accent-dim: rgba(163, 255, 71, 0.10);
+            --error: #ff4444;
+            --error-dim: rgba(255, 68, 68, 0.10);
+            --font-ui: 'Unbounded', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
+        ::selection {
+            background: var(--accent);
+            color: #000;
+        }
+
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-active);
+        }
+
         body {
-            font-family: 'Arial', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--bg);
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 20px;
+            padding: 40px 20px;
+            font-family: var(--font-mono);
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: radial-gradient(circle, #1a1a1a 1px, transparent 1px);
+            background-size: 32px 32px;
+            opacity: 0.5;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(ellipse at center, transparent 40%, var(--bg) 100%);
+            pointer-events: none;
+            z-index: 0;
         }
 
         .container {
-            background: white;
-            padding: 40px;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            max-width: 600px;
+            max-width: 560px;
             width: 100%;
+            position: relative;
+            z-index: 1;
+            animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
 
-        h1 {
-            text-align: center;
-            color: #667eea;
-            margin-bottom: 30px;
-            font-size: 2.5em;
+        /* Header */
+        .header {
+            display: flex;
+            align-items: baseline;
+            gap: 12px;
+            margin-bottom: 56px;
         }
 
-        .input-group {
-            margin-bottom: 20px;
+        .logo {
+            font-family: var(--font-ui);
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: var(--text);
         }
 
-        label {
-            display: block;
+        .logo-accent {
+            color: var(--accent);
+        }
+
+        .logo-divider {
+            width: 1px;
+            height: 12px;
+            background: var(--border-active);
+            flex-shrink: 0;
+        }
+
+        .logo-tagline {
+            font-family: var(--font-mono);
+            font-size: 10px;
+            color: var(--text-dim);
+        }
+
+        /* Main */
+        .heading {
+            font-family: var(--font-ui);
+            font-size: clamp(28px, 5vw, 44px);
+            font-weight: 700;
+            line-height: 1.05;
+            letter-spacing: -0.02em;
             margin-bottom: 8px;
-            color: #333;
-            font-weight: bold;
+            color: var(--text);
         }
 
-        input[type="text"] {
-            width: 100%;
-            padding: 15px;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            font-size: 16px;
-            transition: border-color 0.3s;
+        .heading em {
+            font-style: normal;
+            color: var(--accent);
         }
 
-        input[type="text"]:focus {
-            outline: none;
-            border-color: #667eea;
+        .subheading {
+            font-family: var(--font-mono);
+            font-size: 12px;
+            color: var(--text-dim);
+            margin-bottom: 44px;
         }
 
-        button {
-            width: 100%;
-            padding: 15px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+        .input-label {
+            display: block;
+            font-family: var(--font-mono);
+            font-size: 10px;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--text-dim);
+            margin-bottom: 10px;
+        }
+
+        /* Input wrapper */
+        .input-wrapper {
+            display: flex;
+            align-items: center;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            background: var(--surface);
+            transition: border-color 0.2s, background 0.2s;
+        }
+
+        .input-wrapper:focus-within {
+            border-color: var(--accent);
+            background: rgba(163, 255, 71, 0.02);
+        }
+
+        .url-input {
+            flex: 1;
+            background: transparent;
             border: none;
-            border-radius: 10px;
-            font-size: 18px;
-            font-weight: bold;
+            outline: none;
+            padding: 14px 18px;
+            font-family: var(--font-mono);
+            font-size: 13px;
+            color: var(--text);
+        }
+
+        .url-input::placeholder {
+            color: var(--text-dim);
+            opacity: 0.7;
+        }
+
+        /* Shorten button */
+        .btn-shorten {
+            background: var(--accent);
+            border: none;
+            color: #000;
+            padding: 10px 18px;
+            margin: 4px;
+            border-radius: 2px;
+            font-family: var(--font-mono);
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
             cursor: pointer;
-            transition: transform 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        button:hover {
-            transform: translateY(-2px);
+        .btn-shorten:hover:not(:disabled) {
+            background: #c4ff6a;
+            transform: scale(1.02);
         }
 
-        button:active {
-            transform: translateY(0);
+        .btn-shorten:active:not(:disabled) {
+            transform: scale(0.98);
         }
 
-        button:disabled {
-            opacity: 0.6;
+        .btn-shorten:disabled {
+            opacity: 0.4;
             cursor: not-allowed;
+            transform: none;
         }
 
-        .result {
-            margin-top: 30px;
-            padding: 20px;
-            background: #f8f9fa;
-            border-radius: 10px;
+        .btn-icon {
+            flex-shrink: 0;
+        }
+
+        .btn-loading {
+            display: none;
+            width: 14px;
+            height: 14px;
+            border: 2px solid rgba(0, 0, 0, 0.3);
+            border-top-color: #000;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+            flex-shrink: 0;
+        }
+
+        /* Error */
+        .error-msg {
+            font-family: var(--font-mono);
+            font-size: 12px;
+            color: var(--error);
+            padding: 10px 14px;
+            background: var(--error-dim);
+            border-radius: 4px;
+            margin-top: 10px;
             display: none;
         }
 
-        .result.show {
+        .error-msg.show {
             display: block;
+            animation: slideIn 0.3s;
+        }
+
+        /* Result section */
+        .result-section {
+            margin-top: 36px;
+            padding-top: 28px;
+            border-top: 1px solid var(--border);
+            display: none;
+        }
+
+        .result-section.show {
+            display: block;
+            animation: slideIn 0.4s;
         }
 
         .result-label {
-            color: #666;
-            font-size: 14px;
-            margin-bottom: 5px;
+            font-family: var(--font-mono);
+            font-size: 10px;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--text-dim);
+            margin-bottom: 10px;
         }
 
-        .result-url {
-            color: #333;
-            font-size: 16px;
+        .result-url-original {
+            font-family: var(--font-mono);
+            font-size: 12px;
+            color: var(--text-dim);
+            margin-bottom: 20px;
             word-break: break-all;
-            margin-bottom: 15px;
+            line-height: 1.5;
+            opacity: 0.8;
         }
 
-        .short-url-container {
+        .result-short-wrapper {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
+            padding: 18px 20px;
+            background: var(--accent-dim);
+            border: 1px solid rgba(163, 255, 71, 0.15);
+            border-radius: 4px;
         }
 
-        .short-url {
-            color: #667eea;
-            font-size: 20px;
-            font-weight: bold;
+        .result-short-url {
+            font-family: var(--font-mono);
+            font-size: 17px;
+            font-weight: 500;
+            color: var(--accent);
             word-break: break-all;
             flex: 1;
         }
 
-        .copy-btn {
-            width: 40px;
-            height: 40px;
-            padding: 0;
-            background: #e8eaf6;
-            border: none;
-            border-radius: 50%;
+        .btn-copy {
+            background: transparent;
+            border: 1px solid var(--border-active);
+            border-radius: 4px;
+            color: var(--text-dim);
+            padding: 7px 12px;
             cursor: pointer;
-            transition: all 0.3s;
+            font-family: var(--font-mono);
+            font-size: 10px;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            flex-shrink: 0;
             display: flex;
             align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
+            gap: 6px;
+            transition: all 0.2s;
         }
 
-        .copy-btn:hover {
-            background: #c5cae9;
-            transform: scale(1.1);
+        .btn-copy:hover {
+            border-color: var(--accent);
+            color: var(--accent);
         }
 
-        .copy-btn.copied {
-            background: #28a745;
+        .btn-copy.copied {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: var(--accent-dim);
         }
 
-        .copy-btn svg {
-            width: 20px;
-            height: 20px;
-            fill: #667eea;
+        /* Footer */
+        .footer {
+            margin-top: 56px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
         }
 
-        .copy-btn.copied svg {
-            fill: white;
+        .footer-line {
+            flex: 1;
+            height: 1px;
+            background: var(--border);
         }
 
-        .error {
-            margin-top: 20px;
-            padding: 15px;
-            background: #ffebee;
-            color: #c62828;
-            border-radius: 10px;
-            display: none;
+        .footer-text {
+            font-family: var(--font-mono);
+            font-size: 10px;
+            color: var(--text-subtle);
+            letter-spacing: 0.08em;
         }
 
-        .error.show {
-            display: block;
+        /* Animations */
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
-        .loading {
-            display: inline-block;
-            margin-left: 10px;
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        /* Options section */
+        .options-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        @media (max-width: 480px) {
+            .options-section {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .option-input {
+            width: 100%;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 11px 14px;
+            font-family: var(--font-mono);
+            font-size: 13px;
+            color: var(--text);
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .option-input:focus {
+            border-color: var(--accent);
+        }
+
+        .option-input::placeholder {
+            color: var(--text-dim);
+            opacity: 0.6;
+        }
+
+        .ttl-select {
+            width: 100%;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 11px 14px;
+            font-family: var(--font-mono);
+            font-size: 13px;
+            color: var(--text);
+            outline: none;
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23909090' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 14px center;
+            padding-right: 36px;
+            transition: border-color 0.2s;
+        }
+
+        .ttl-select:focus {
+            border-color: var(--accent);
+        }
+
+        .ttl-select option {
+            background: var(--surface);
+            color: var(--text);
+        }
+
+        .optional-tag {
+            font-size: 9px;
+            color: var(--text-dim);
+            letter-spacing: 0.1em;
+            margin-left: 6px;
+            text-transform: uppercase;
+            font-weight: 400;
+        }
+
+        .result-expiry {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            color: var(--text-dim);
+            margin-top: 10px;
+            letter-spacing: 0.02em;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>ShortUrl</h1>
-        
-        <div class="input-group">
-            <label for="originalUrl">Cole seu link aqui:</label>
-            <input type="text" id="originalUrl" placeholder="https://exemplo.com/seu-link-muito-longo">
-        </div>
+        <header class="header">
+            <span class="logo">Fast<span class="logo-accent">URL</span></span>
+            <div class="logo-divider"></div>
+            <span class="logo-tagline">link shortener</span>
+        </header>
 
-        <button id="btnEncurtar" onclick="encurtarLink()">Encurtar Link</button>
+        <main class="main">
+            <h1 class="heading">Encurte.<br><em>Compartilhe.</em></h1>
+            <p class="subheading">// cole seu link abaixo</p>
 
-        <div class="error" id="error"></div>
-
-        <div class="result" id="result">
-            <div class="result-label">Link original:</div>
-            <div class="result-url" id="displayOriginal"></div>
-            
-            <div class="result-label">Link encurtado:</div>
-            <div class="short-url-container">
-                <div class="short-url" id="shortUrl"></div>
-                <button class="copy-btn" id="copyBtn" onclick="copiarLink()">
-                    <svg id="copyIcon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                        <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
-                    </svg>
-                </button>
+            <div class="input-section">
+                <label class="input-label" for="originalUrl">URL de entrada</label>
+                <div class="input-wrapper">
+                    <input
+                        type="text"
+                        id="originalUrl"
+                        class="url-input"
+                        placeholder="https://exemplo.com/caminho/muito/longo"
+                        autocomplete="off"
+                        spellcheck="false"
+                    >
+                    <button class="btn-shorten" id="btnShorten">
+                        <svg class="btn-icon" width="14" height="14" viewBox="0 0 16 16" fill="none">
+                            <path d="M3 8H13M13 8L9 4M13 8L9 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <div class="btn-loading" id="btnLoading"></div>
+                        <span id="btnText">Encurtar</span>
+                    </button>
+                </div>
+                <div class="error-msg" id="errorMsg"></div>
+                <div class="options-section">
+                    <div>
+                        <label class="input-label" for="customSlug">
+                            Slug personalizado<span class="optional-tag">opcional</span>
+                        </label>
+                        <input
+                            type="text"
+                            id="customSlug"
+                            class="option-input"
+                            placeholder="meu-link"
+                            autocomplete="off"
+                            spellcheck="false"
+                        >
+                    </div>
+                    <div>
+                        <label class="input-label" for="ttlSelect">
+                            Expiração<span class="optional-tag">opcional</span>
+                        </label>
+                        <select id="ttlSelect" class="ttl-select">
+                            <option value="">Permanente</option>
+                            <option value="3600">1 hora</option>
+                            <option value="86400">24 horas</option>
+                            <option value="604800">7 dias</option>
+                            <option value="2592000">30 dias</option>
+                        </select>
+                    </div>
+                </div>
             </div>
-        </div>
+
+            <div class="result-section" id="resultSection">
+                <div class="result-label">→ link encurtado</div>
+                <div class="result-url-original" id="displayOriginal"></div>
+                <div class="result-short-wrapper">
+                    <span class="result-short-url" id="shortUrl"></span>
+                    <button class="btn-copy" id="btnCopy">
+                        <svg width="12" height="12" viewBox="0 0 16 16" fill="none">
+                            <rect x="5" y="5" width="9" height="9" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                            <path d="M3 11H2a1 1 0 01-1-1V2a1 1 0 011-1h8a1 1 0 011 1v1" stroke="currentColor" stroke-width="1.5"/>
+                        </svg>
+                        <span id="copyText">Copiar</span>
+                    </button>
+                </div>
+                <div class="result-expiry" id="resultExpiry"></div>
+            </div>
+        </main>
+
+        <footer class="footer">
+            <div class="footer-line"></div>
+            <span class="footer-text">FastURL v1.0</span>
+            <div class="footer-line"></div>
+        </footer>
     </div>
 
-    <script>
-        const API_URL = 'http://localhost:8000';
-
-        async function encurtarLink() {
-            const originalUrl = document.getElementById('originalUrl').value;
-            const btnEncurtar = document.getElementById('btnEncurtar');
-            const errorDiv = document.getElementById('error');
-            const resultDiv = document.getElementById('result');
-            
-            // Esconde mensagens anteriores
-            errorDiv.classList.remove('show');
-            resultDiv.classList.remove('show');
-            
-            if (!originalUrl) {
-                mostrarErro('Por favor, insira um link!');
-                return;
-            }
-
-            // Validação básica de URL
-            try {
-                new URL(originalUrl);
-            } catch (e) {
-                mostrarErro('Por favor, insira uma URL válida (ex: https://exemplo.com)');
-                return;
-            }
-
-            // Desabilita o botão durante a requisição
-            btnEncurtar.disabled = true;
-            btnEncurtar.innerHTML = 'Encurtando... <span class="loading">⏳</span>';
-
-            try {
-                const response = await fetch(`${API_URL}/encurtar`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        url_original: originalUrl
-                    })
-                });
-
-                if (!response.ok) {
-                    throw new Error('Erro ao encurtar o link');
-                }
-
-                const data = await response.json();
-                
-                // Exibe os resultados
-                document.getElementById('displayOriginal').textContent = originalUrl;
-                document.getElementById('shortUrl').textContent = data.url_encurtada;
-                resultDiv.classList.add('show');
-                
-                // Reset do botão copiar
-                const copyBtn = document.getElementById('copyBtn');
-                copyBtn.classList.remove('copied');
-                document.getElementById('copyIcon').innerHTML = '<path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>';
-
-            } catch (error) {
-                mostrarErro('Erro ao encurtar o link. Certifique-se de que o servidor está rodando.');
-                console.error('Erro:', error);
-            } finally {
-                // Reabilita o botão
-                btnEncurtar.disabled = false;
-                btnEncurtar.textContent = 'Encurtar Link';
-            }
-        }
-
-        function mostrarErro(mensagem) {
-            const errorDiv = document.getElementById('error');
-            errorDiv.textContent = mensagem;
-            errorDiv.classList.add('show');
-        }
-
-        function copiarLink() {
-            const linkEncurtado = document.getElementById('shortUrl').textContent;
-            const copyBtn = document.getElementById('copyBtn');
-            const copyIcon = document.getElementById('copyIcon');
-            
-            navigator.clipboard.writeText(linkEncurtado).then(() => {
-                copyBtn.classList.add('copied');
-                copyIcon.innerHTML = '<path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>';
-                
-                setTimeout(() => {
-                    copyBtn.classList.remove('copied');
-                    copyIcon.innerHTML = '<path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>';
-                }, 2000);
-            }).catch(err => {
-                mostrarErro('Erro ao copiar o link');
-            });
-        }
-
-        // Permite encurtar pressionando Enter
-        document.getElementById('originalUrl').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                encurtarLink();
-            }
-        });
-    </script>
+    <script src="/static/scripts.js"></script>
 </body>
 </html>
