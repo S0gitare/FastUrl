@@ -34,29 +34,6 @@
 
 ---
 
-## Rodando localmente
-
-```bash
-# 1. Clone o repositório
-git clone https://github.com/seu-usuario/fasturl.git
-cd fasturl
-
-# 2. Crie e ative o ambiente virtual
-python -m venv .venv
-.venv\Scripts\activate       # Windows
-source .venv/bin/activate    # Linux/Mac
-
-# 3. Instale as dependências
-pip install fastapi uvicorn aiofiles
-
-# 4. Suba o servidor
-uvicorn main:application --reload
-```
-
-Acesse **http://localhost:8000**
-
----
-
 ## Estrutura
 
 ```
@@ -70,18 +47,6 @@ fasturl/
 └── static/
     └── scripts.js    # Lógica do frontend
 ```
-
----
-
-## Deploy
-
-Pronto para deploy no [Render](https://render.com) como **Web Service** Python.
-
-Após o deploy, substitua `https://seusite.com` pela URL gerada em:
-- `static/scripts.js` — variável `API_URL`
-- `robots.txt` — linha do Sitemap
-- `sitemap.xml` — tag `<loc>`
-- `index.html` — meta tag `og:url`
 
 ---
 
