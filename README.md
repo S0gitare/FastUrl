@@ -1,6 +1,6 @@
 <div align="center">
 
-  <img src="docs/preview.png" alt="FastURL Preview" width="100%" style="border-radius: 8px">
+  <img src="docs/preview.png" alt="FastURL Preview" width="80%">
 
   <h1>FastURL</h1>
 
