@@ -478,6 +478,118 @@
             margin-top: 10px;
             letter-spacing: 0.02em;
         }
+
+        /* ── Mobile ─────────────────────────────────────────── */
+        @media (max-width: 540px) {
+            body {
+                padding: 28px 16px;
+                align-items: flex-start;
+                padding-top: 44px;
+            }
+
+            .container {
+                max-width: 100%;
+            }
+
+            .header {
+                margin-bottom: 36px;
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+
+            .logo-tagline {
+                font-size: 9px;
+            }
+
+            .heading {
+                font-size: clamp(26px, 8vw, 38px);
+                margin-bottom: 6px;
+            }
+
+            .subheading {
+                margin-bottom: 28px;
+                font-size: 11px;
+            }
+
+            /* Stack input and button vertically on mobile */
+            .input-wrapper {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .url-input {
+                /* 16px prevents iOS auto-zoom on focus */
+                font-size: 16px;
+                padding: 14px 16px;
+                border-bottom: 1px solid var(--border);
+                border-radius: 0;
+            }
+
+            .input-wrapper:focus-within .url-input {
+                border-bottom-color: var(--accent);
+            }
+
+            .btn-shorten {
+                margin: 6px;
+                padding: 13px 18px;
+                justify-content: center;
+                font-size: 12px;
+                border-radius: 2px;
+                width: calc(100% - 12px);
+            }
+
+            /* Prevent iOS zoom on option inputs too */
+            .option-input,
+            .ttl-select {
+                font-size: 16px;
+            }
+
+            .options-section {
+                grid-template-columns: 1fr;
+            }
+
+            /* Result short URL + copy button — stack on very narrow */
+            .result-short-wrapper {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 12px;
+                padding: 16px;
+            }
+
+            .result-short-url {
+                font-size: 14px;
+                word-break: break-all;
+            }
+
+            .btn-copy {
+                justify-content: center;
+                padding: 11px 16px;
+                font-size: 11px;
+            }
+
+            .result-url-original {
+                font-size: 11px;
+            }
+
+            .footer {
+                margin-top: 40px;
+            }
+        }
+
+        @media (max-width: 360px) {
+            body {
+                padding: 20px 12px;
+                padding-top: 32px;
+            }
+
+            .logo {
+                font-size: 10px;
+            }
+
+            .heading {
+                font-size: clamp(22px, 7vw, 30px);
+            }
+        }
     </style>
 </head>
 <body>
